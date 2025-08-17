@@ -1,7 +1,8 @@
 import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
-import jetbrains.buildServer.configs.kotlin.v2019_2.buildFeatures.failureConditions
+import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.BuildFailureOnText
+import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.failOnText
 
 version = "2019.2"
 
@@ -41,6 +42,13 @@ object BuildAndTest : BuildType({
 
     triggers {
         vcs {
+        }
+    }
+
+    failureConditions {
+        failOnText {
+            conditionType = BuildFailureOnText.ConditionType.CONTAINS
+            pattern = "FAILED"
         }
     }
 })

@@ -2,8 +2,8 @@ version = "2023.05"
 
 project {
     buildType {
-        id("HelloWorldBuild")
-        name = "Build and Test"
+        id("HelloWorld_LocalBuild")
+        name = "Build and Test (Local)"
         
         vcs {
             root(TeamCityGitRepo)
@@ -11,50 +11,43 @@ project {
         
         steps {
             script {
-                name = "Install dependencies"
+                name = "Install Dependencies"
                 scriptContent = "pip install -r requirements.txt"
             }
             
             script {
-                name = "Run tests"
+                name = "Run Tests"
                 scriptContent = "python -m pytest"
             }
             
             script {
-                name = "Build package"
+                name = "Build Artifact"
                 scriptContent = """
                     mkdir -p dist
-                    echo "Building Python package..."
                     cp -r src/ dist/
+                    echo "Built at: $(date)" > dist/build-info.txt
                 """
-            }
-        }
-        
-        features {
-            feature {
-                type = "xml-report"
-                param("xmlReportParsing.reportType", "junit")
-                param("xmlReportParsing.reportDirs", "**/test-results/*.xml")
             }
         }
     }
     
     buildType {
-        id("HelloWorldDeploy")
-        name = "Deploy"
+        id("HelloWorld_LocalDeploy")
+        name = "Deploy (Local)"
         
         dependencies {
-            snapshot(HelloWorldBuild) {
+            snapshot(HelloWorld_LocalBuild) {
                 onDependencyFailure = FailureAction.FAIL_TO_START
             }
         }
         
         steps {
             script {
-                name = "Deploy"
+                name = "Deploy Locally"
                 scriptContent = """
-                    echo "Deploying application..."
-                    # Add your deployment commands here
+                    echo "Deploying to local machine..."
+                    cp -r dist/ /tmp/hello-world-deploy/
+                    echo "Deployed to /tmp/hello-world-deploy"
                 """
             }
         }

@@ -1,29 +1,13 @@
-// Required TeamCity DSL imports
 import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
-import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.BuildFailureOnText
-import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.failOnText
+import jetbrains.buildServer.configs.kotlin.v2019_2.buildFeatures.failureConditions
 
 version = "2019.2"
 
 project {
-    // This must match your VCS root ID
-    val vcsRootId = "HelloWorldRepo" // Replace with your actual VCS root ID
-    
-    buildType(BuildAndTest) {
-        vcs {
-            root(DslContext.settingsRoot)
-        }
-    }
-
-    buildType(DeployLocally) {
-        dependencies {
-            snapshot(BuildAndTest) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-            }
-        }
-    }
+    buildType(BuildAndTest)
+    buildType(DeployLocally)
 }
 
 object BuildAndTest : BuildType({
@@ -54,11 +38,22 @@ object BuildAndTest : BuildType({
             """
         }
     }
+
+    triggers {
+        vcs {
+        }
+    }
 })
 
 object DeployLocally : BuildType({
     name = "Deploy Locally"
     id = AbsoluteId("HelloWorld_LocalDeploy")
+
+    dependencies {
+        snapshot(BuildAndTest) {
+            onDependencyFailure = FailureAction.FAIL_TO_START
+        }
+    }
 
     steps {
         script {
